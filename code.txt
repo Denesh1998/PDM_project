@@ -1,0 +1,10 @@
+    def add_intensity(X):
+        for i in range(X.shape[0]):
+            for j in range(X.shape[1]): 
+                X[i,j] += 30
+                if X[i,j] >= 255: X[i,j] = 255
+        return X
+    X_test_int_30 = add_intensity(X_test_int)
+    X_test_hog_30 = calculate_hog(X_test_int_30)
+    CNN_model = MobileNet(weights='imagenet', include_top=False)
+    X_test_cnn_30 = calculate_cnn(CNN_model, X_test_int_30)
