@@ -38,9 +38,9 @@ class RRT:
                  goal,
                  obstacle_list,
                  rand_area,
-                 expand_dis=3.0,
+                 expand_dis=4.0,
                  path_resolution=0.5,
-                 goal_sample_rate=10,
+                 goal_sample_rate=5,
                  max_iter=500):
         """
         Setting Parameter
@@ -49,8 +49,8 @@ class RRT:
         obstacleList:obstacle Positions [[x,y,size],...]
         randArea:Random Sampling Area [min,max]
         """
-        self.start = self.Node(start[0], start[1], start[1])
-        self.end = self.Node(goal[0], goal[1], goal[1])
+        self.start = self.Node(start[0], start[1], start[2])
+        self.end = self.Node(goal[0], goal[1], goal[2])
         self.min_rand = rand_area[0]
         self.max_rand = rand_area[1]
         self.expand_dis = expand_dis
@@ -96,7 +96,7 @@ class RRT:
     def steer(self, from_node, to_node, extend_length=float("inf")):
 
         new_node = self.Node(from_node.x, from_node.y, from_node.z)
-        d, theta1, theta2 = self.calc_distance_and_angle(new_node, to_node)
+        d, dc1, dc2,dc3 = self.calc_distance_and_angle(new_node, to_node)
 
         new_node.path_x = [new_node.x]
         new_node.path_y = [new_node.y]
@@ -109,16 +109,16 @@ class RRT:
         n_expand = math.floor(extend_length / self.path_resolution)
 
         for _ in range(n_expand):
-            new_node.x += self.path_resolution * math.cos(theta1)
-            new_node.y += self.path_resolution * math.sin(theta1)
-            new_node.z += self.path_resolution * math.tan(theta2)
+            new_node.x += self.path_resolution * dc1
+            new_node.y += self.path_resolution * dc2
+            new_node.z += self.path_resolution * dc3
             new_node.path_x.append(new_node.x)
             new_node.path_y.append(new_node.y)
             new_node.path_z.append(new_node.z)
 
             
 
-        d, _, _ = self.calc_distance_and_angle(new_node, to_node)
+        d, _, _,_ = self.calc_distance_and_angle(new_node, to_node)
         if d <= self.path_resolution:
             new_node.path_x.append(to_node.x)
             new_node.path_y.append(to_node.y)
@@ -171,13 +171,13 @@ class RRT:
             plt.plot(rnd.x, rnd.y, rnd.z, "^k")
         for node in self.node_list:
             if node.parent:
-                plt.plot(node.path_x, node.path_y, node.path_y, "-g")
+                plt.plot(node.path_x, node.path_y, node.path_z, "-g")
 
         for (ox, oy, oz, size) in self.obstacle_list:
             self.plot_circle(ox, oy, oz, size)
 
         plt.plot(self.start.x, self.start.y, self.start.z, "xr")
-        plt.plot(self.end.x, self.end.y,self.start.z, "xr")
+        plt.plot(self.end.x, self.end.y,self.end.z, "xr")
         verts = [(ox, oy, oz)]
         ax.add_collection3d(Poly3DCollection(verts))
 
@@ -188,11 +188,13 @@ class RRT:
 
     @staticmethod
     def plot_circle(x, y, z, size, color="-b"):  # pragma: no cover
-        deg = list(range(0, 360, 5))
-        deg.append(0)
-        xl = [x + size * math.cos(np.deg2rad(d)) for d in deg]
-        yl = [y + size * math.sin(np.deg2rad(d)) for d in deg]
-        z1 = np.pi*0.5*z**2
+        theta = list(range(0, 360, 5))
+        phi = list(range(0, 360, 5))
+        theta.append(0)
+        phi.append(0)
+        xl = [x + size * math.sin(np.deg2rad(d1))*math.cos(np.deg2rad(d2)) for (d1,d2) in zip(theta,phi)]
+        yl = [y + size * math.sin(np.deg2rad(d1))*math.sin(np.deg2rad(d2)) for (d1,d2) in zip(theta,phi)]
+        z1 = [z + size * math.cos(np.deg2rad(d)) for d in theta]
         plt.plot(xl, yl, z1, color)
 
     @staticmethod
@@ -212,7 +214,7 @@ class RRT:
         for (ox, oy, oz, size) in obstacleList:
             dx_list = [ox - x for x in node.path_x]
             dy_list = [oy - y for y in node.path_y]
-            dz_list = [oy - y for y in node.path_y]
+            dz_list = [oz - z for z in node.path_z]
             d_list = [dx * dx + dy * dy + dz*dz for (dx, dy, dz) in zip(dx_list, dy_list, dz_list)]
 
             if min(d_list) <= size**2:
@@ -226,12 +228,13 @@ class RRT:
         dy = to_node.y - from_node.y
         dz = to_node.z - from_node.z
         d = np.sqrt(dx**2 + dy**2 + dz**2)
-        theta1 = math.atan2(dy, dx)
-        theta2 = math.atan2(dz, dy)
-        return d, theta1, theta2
+        dc1 = dx/d
+        dc2 = dy/d
+        dc3 = dy/d
+        return d, dc1, dc2, dc3
 
 
-def main(gx=15.0, gy=15.0, gz=80.0):
+def main(gx=10.0, gy=10.0, gz=10.0):
     print("start " + __file__)
 
     # ====Search Path with RRT====
@@ -241,7 +244,7 @@ def main(gx=15.0, gy=15.0, gz=80.0):
     rrt = RRT(
         start=[0, 0, 0],
         goal=[gx, gy, gz],
-        rand_area=[-2, 15],
+        rand_area=[-2, 10],
         obstacle_list=obstacleList)
     path = rrt.planning(animation=show_animation)
 
