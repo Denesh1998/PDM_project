@@ -239,7 +239,7 @@ class RRT:
         return d, dc1, dc2, dc3
 
 
-def main(gx=1.0, gy=1.0, gz=1.0):
+def main(gx=4.0, gy=5.0, gz=1.0):
     print("start " + __file__)
 
     # ====Search Path with RRT====
