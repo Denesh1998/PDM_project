@@ -358,9 +358,9 @@ class RRTStar:
         phi = list(range(0, 360, 5))
         theta.append(0)
         phi.append(0)
-        xl = x + 1 * np.outer(np.cos(theta), np.sin(phi))
-        yl = y + 1 * np.outer(np.sin(theta), np.sin(phi))
-        z1 = z + 1 * np.outer(np.ones(np.size(theta)), np.cos(phi))
+        xl = x + .5*size * np.outer(np.cos(theta), np.sin(phi))
+        yl = y + .5*size * np.outer(np.sin(theta), np.sin(phi))
+        z1 = z + .5*size * np.outer(np.ones(np.size(theta)), np.cos(phi))
         #xl = [x + size * math.sin(np.deg2rad(d1))*math.cos(np.deg2rad(d2)) for (d1,d2) in zip(theta,phi)]
         #yl = [y + size * math.sin(np.deg2rad(d1))*math.sin(np.deg2rad(d2)) for (d1,d2) in zip(theta,phi)]
         #z1 = [z + size * math.cos(np.deg2rad(d)) for d in theta]
@@ -406,14 +406,15 @@ class RRTStar:
         return d, dc1, dc2, dc3
 
 
-def main(gx=4.0, gy=5.0, gz=1.0):
+def main(gx=4.0, gy=5.0, gz=8.0):
     print("start " + __file__)
 
     # ====Search Path with RRT====
     #obstacleList = [(5, 5, 5, 1), (3, 6, 6, 2), (3, 8, 8, 2), (3, 10, 4, 2), (7, 5, 5, 2),
     #                (9, 5, 5, 2), (8, 10, 2, 1)]  # [x, y, z, radius]
-    obstacleList = [(1, 1, 3, 1), (4, 4, 4, 2), (6, 6, 6, 2), (8, 8, 8, 2), (1, 4, 4, 2),
-                    (2, 6, 8, 2), (8, 2, 3, 1)]  # [x, y, z, radius]
+    #obstacleList = [(1, 1, 3, 1), (4, 4, 4, 2), (6, 6, 6, 2), (8, 8, 8, 2), (1, 4, 4, 2),
+    #                (2, 6, 8, 2), (8, 2, 3, 1)]  # [x, y, z, radius]
+    obstacleList = [(1, 1, 3, 1)]  # [x, y, z, radius]
     # Set Initial parameters
     rrt = RRTStar(
         start=[0, 0, 0],
