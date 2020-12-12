@@ -191,9 +191,9 @@ class RRT:
         phi = list(range(0, 360, 5))
         theta.append(0)
         phi.append(0)
-        xl = x + 1 * np.outer(np.cos(theta), np.sin(phi))
-        yl = y + 1 * np.outer(np.sin(theta), np.sin(phi))
-        z1 = z + 1 * np.outer(np.ones(np.size(theta)), np.cos(phi))
+        xl = x + size * np.outer(np.cos(theta), np.sin(phi))
+        yl = y + size * np.outer(np.sin(theta), np.sin(phi))
+        z1 = z + size * np.outer(np.ones(np.size(theta)), np.cos(phi))
         #xl = [x + size * math.sin(np.deg2rad(d1))*math.cos(np.deg2rad(d2)) for (d1,d2) in zip(theta,phi)]
         #yl = [y + size * math.sin(np.deg2rad(d1))*math.sin(np.deg2rad(d2)) for (d1,d2) in zip(theta,phi)]
         #z1 = [z + size * math.cos(np.deg2rad(d)) for d in theta]
